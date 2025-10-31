@@ -298,9 +298,32 @@ def evaluate_speaking():
     try:
         data = request.json
         responses = data.get('responses', [])
+        evaluate_type = data.get('evaluate_type', 'full')  # 'full' or 'single_part'
+        part = data.get('part', None)  # 'part1', 'part2', or 'part3'
         
         # Chuẩn bị dữ liệu cho GPT
-        evaluation_prompt = create_evaluation_prompt(responses)
+        evaluation_prompt = create_evaluation_prompt(responses, evaluate_type, part)
+        
+        # Tạo system prompt dựa trên evaluation type
+        if evaluate_type == 'single_part':
+            part_names = {
+                'part1': 'Part 1 (Introduction and Interview)',
+                'part2': 'Part 2 (Long Turn)',
+                'part3': 'Part 3 (Two-way Discussion)'
+            }
+            part_name = part_names.get(part, 'a section')
+            system_content = f"""You are an official IELTS Speaking examiner.
+You will receive a student's spoken answers for {part_name} only (converted to text) and the questions they were responding to.
+Your task is to evaluate this specific part as if it were given in a real IELTS Speaking test.
+
+Follow the IELTS Speaking band descriptors strictly and provide detailed, specific evaluation for this part.
+Note: Since you're only evaluating {part_name}, provide feedback specific to the characteristics expected for this section."""
+        else:
+            system_content = """You are an official IELTS Speaking examiner. 
+You will receive a student's spoken answers (converted to text) and the questions they were responding to. 
+Your task is to evaluate the answers as if they were given in a real IELTS Speaking test.
+
+Follow the IELTS Speaking band descriptors strictly and provide detailed, specific evaluation."""
         
         # Gọi GPT để đánh giá
         completion = client.chat.completions.create(
@@ -308,16 +331,11 @@ def evaluate_speaking():
             messages=[
                 {
                     "role": "system",
-                    "content": """You are an expert IELTS examiner. Evaluate the speaking responses based on the four IELTS Speaking criteria:
-1. Fluency and Coherence (0-9)
-2. Lexical Resource (0-9)
-3. Grammatical Range and Accuracy (0-9)
-4. Pronunciation (0-9)
+                    "content": system_content + """
 
-Provide detailed feedback in Vietnamese and calculate the overall band score.
 Return your response in JSON format with the following structure:
 {
-    "overall_band": float,
+    "overall_band": float (average band rounded to nearest 0.5),
     "criteria_scores": {
         "fluency_coherence": float,
         "lexical_resource": float,
@@ -325,22 +343,41 @@ Return your response in JSON format with the following structure:
         "pronunciation": float
     },
     "detailed_feedback": {
-        "fluency_coherence": "string",
-        "lexical_resource": "string",
-        "grammatical_range": "string",
-        "pronunciation": "string",
-        "overall": "string"
+        "fluency_coherence": {
+            "score": float,
+            "analysis": "Detailed analysis covering: pace of speech, pauses and hesitations, coherence and cohesion, use of linking devices, ability to develop topics. Be specific about what was observed."
+        },
+        "lexical_resource": {
+            "score": float,
+            "analysis": "Detailed analysis covering: vocabulary range, use of less common/idiomatic expressions, collocation, word choice appropriacy, any lexical errors or repetitions. Provide specific examples."
+        },
+        "grammatical_range": {
+            "score": float,
+            "analysis": "Detailed analysis covering: variety of sentence structures (simple, compound, complex), tense usage and accuracy, grammatical errors and their frequency/severity. Highlight specific structures used or missing."
+        },
+        "pronunciation": {
+            "score": float,
+            "analysis": "Based on transcript analysis: assess word stress patterns, sentence rhythm, clarity of expression. Note: actual pronunciation cannot be fully assessed from transcript alone, so focus on indicators of speech clarity and naturalness evident in the text."
+        }
     },
-    "strengths": ["string"],
-    "areas_for_improvement": ["string"]
-}"""
+    "examiner_feedback": "2-3 sentences of natural feedback as an IELTS examiner: What was good, what to improve, and how to reach the next band level. Be encouraging but honest.",
+    "strengths": ["specific strength 1", "specific strength 2", "specific strength 3"],
+    "areas_for_improvement": ["specific area 1 with actionable advice", "specific area 2 with actionable advice", "specific area 3 with actionable advice"]
+}
+
+Important guidelines:
+- Be specific and reference actual content from the responses
+- Scores should reflect official IELTS band descriptors
+- Feedback should be professional, constructive, and actionable
+- Consider the part type (Part 1: short responses, Part 2: long turn, Part 3: abstract discussion)
+- Overall band is the average of the 4 criteria, rounded to nearest 0.5"""
                 },
                 {
                     "role": "user",
                     "content": evaluation_prompt
                 }
             ],
-            temperature=0.7,
+            temperature=0.5,
             response_format={"type": "json_object"}
         )
         
@@ -353,32 +390,67 @@ Return your response in JSON format with the following structure:
         print(f"Error in evaluation: {e}")
         return jsonify({'error': str(e)}), 500
 
-def create_evaluation_prompt(responses):
+def create_evaluation_prompt(responses, evaluate_type='full', part=None):
     """Tạo prompt cho GPT để đánh giá"""
-    prompt = "IELTS Speaking Test Responses:\n\n"
+    if evaluate_type == 'single_part':
+        part_names = {
+            'part1': 'PART 1 (Introduction and Interview)',
+            'part2': 'PART 2 (Long Turn)',
+            'part3': 'PART 3 (Two-way Discussion)'
+        }
+        part_name = part_names.get(part, 'SECTION')
+        prompt = f"=== IELTS SPEAKING {part_name} EVALUATION ===\n\n"
+    else:
+        prompt = "=== IELTS SPEAKING TEST EVALUATION ===\n\n"
     
     for response in responses:
-        part = response.get('part', 'unknown')
+        response_part = response.get('part', 'unknown')
         question_index = response.get('question_index', 0)
         text = response.get('text', '')
         duration = response.get('duration', 0)
         word_count = len(text.split())
         
-        prompt += f"--- {part.upper()} - Question {question_index + 1} ---\n"
+        prompt += f"{'='*60}\n"
+        prompt += f"[{response_part.upper()} - Question {question_index + 1}]\n"
+        prompt += f"{'='*60}\n\n"
         
-        if part == 'part1':
+        if response_part == 'part1':
             question = SPEAKING_TEST['part1']['questions'][question_index] if question_index < len(SPEAKING_TEST['part1']['questions']) else "Question"
-            prompt += f"Question: {question}\n"
-        elif part == 'part2':
-            prompt += f"Topic: {SPEAKING_TEST['part2']['topic']}\n"
-        elif part == 'part3':
+            prompt += f"QUESTION: {question}\n\n"
+        elif response_part == 'part2':
+            topic = SPEAKING_TEST['part2']['topic']
+            points = SPEAKING_TEST['part2']['points']
+            prompt += f"TOPIC: {topic}\n\n"
+            prompt += "Points to cover:\n"
+            for point in points:
+                prompt += f"  • {point}\n"
+            prompt += "\n"
+        elif response_part == 'part3':
             question = SPEAKING_TEST['part3']['questions'][question_index] if question_index < len(SPEAKING_TEST['part3']['questions']) else "Question"
-            prompt += f"Question: {question}\n"
+            prompt += f"QUESTION: {question}\n\n"
         
-        prompt += f"Response: {text}\n"
-        prompt += f"Duration: {duration:.1f}s | Word count: {word_count}\n\n"
+        prompt += f"STUDENT'S ANSWER:\n{text}\n\n"
+        prompt += f"[Duration: {duration:.1f}s | Word count: {word_count}]\n\n"
     
-    prompt += "\nPlease evaluate these responses according to IELTS Speaking criteria and provide detailed feedback in Vietnamese."
+    prompt += "="*60 + "\n\n"
+    
+    if evaluate_type == 'single_part':
+        prompt += f"""EVALUATION INSTRUCTIONS:
+Please evaluate this {part_name} according to official IELTS Speaking band descriptors.
+Provide detailed, specific analysis for each criterion with concrete examples from the student's responses.
+Consider the specific expectations for {part_name}:
+- Part 1: Short, direct answers on familiar topics
+- Part 2: Extended monologue on given topic (1-2 minutes)
+- Part 3: More abstract discussion with complex ideas
+
+The evaluation should be professional, constructive, and actionable.
+All detailed feedback should be in Vietnamese, but use English for criterion names and technical terms."""
+    else:
+        prompt += """EVALUATION INSTRUCTIONS:
+Please evaluate these responses according to official IELTS Speaking band descriptors.
+Provide detailed, specific analysis for each criterion with concrete examples from the student's responses.
+The evaluation should be professional, constructive, and actionable.
+All detailed feedback should be in Vietnamese, but use English for criterion names and technical terms."""
     
     return prompt
 
