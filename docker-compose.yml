@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  ielts-practice:
+    build: .
+    container_name: ielts-practice-app
+    ports:
+      - "5000:5000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    env_file:
+      - .env
+    volumes:
+      # Mount images directory to persist and easily update images
+      - ./static/images:/app/static/images
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+

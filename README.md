@@ -38,31 +38,98 @@
 
 ## 🚀 Cài đặt
 
-### 1. Clone hoặc download project
+### Phương án 1: Chạy với Docker (Khuyên dùng) 🐳
 
+#### Yêu cầu:
+- Docker Desktop hoặc Docker Engine
+- Docker Compose
+
+#### Các bước:
+
+**1. Clone project**
 ```bash
 git clone <repository-url>
 cd transcribe
 ```
 
-### 2. Cài đặt dependencies
-
+**2. Tạo file `.env`**
 ```bash
-pip install -r requirements.txt
+# Tạo file .env
+echo "OPENAI_API_KEY=sk-your-api-key-here" > .env
 ```
 
-### 3. Cấu hình API key
-
-Tạo file `.env` trong thư mục project:
-
+Hoặc tạo thủ công file `.env` với nội dung:
 ```env
 OPENAI_API_KEY=sk-your-api-key-here
 ```
 
 💡 Lấy API key tại: https://platform.openai.com/account/api-keys
 
-### 4. Chạy ứng dụng
+**3. Build và chạy**
 
+**Linux/Mac:**
+```bash
+chmod +x docker-run.sh
+./docker-run.sh
+```
+
+**Windows:**
+```bash
+docker-run.bat
+```
+
+**Hoặc dùng docker-compose trực tiếp:**
+```bash
+docker-compose up -d
+```
+
+**4. Truy cập ứng dụng**
+
+Mở browser: **http://localhost:5000**
+
+**Các lệnh Docker hữu ích:**
+```bash
+# Xem logs
+docker-compose logs -f
+
+# Dừng app
+docker-compose down
+
+# Rebuild (sau khi sửa code)
+docker-compose up -d --build
+
+# Xem status
+docker-compose ps
+```
+
+---
+
+### Phương án 2: Chạy trực tiếp (Development)
+
+#### Yêu cầu:
+- Python 3.8+
+
+#### Các bước:
+
+**1. Clone project**
+```bash
+git clone <repository-url>
+cd transcribe
+```
+
+**2. Cài đặt dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+**3. Cấu hình API key**
+
+Tạo file `.env` trong thư mục project:
+```env
+OPENAI_API_KEY=sk-your-api-key-here
+```
+
+**4. Chạy ứng dụng**
 ```bash
 python app.py
 ```
@@ -191,23 +258,46 @@ Tất cả 5 ảnh đã có sẵn trong `static/images/writing/`. Nếu cần th
 
 ## 🐛 Troubleshooting
 
-### "Không thể truy cập microphone"
+### Docker
+
+**"Cannot connect to Docker daemon"**
+- Đảm bảo Docker Desktop đang chạy
+- Linux: `sudo systemctl start docker`
+
+**"Port 5000 already in use"**
+```bash
+# Dừng container đang chạy
+docker-compose down
+
+# Hoặc thay đổi port trong docker-compose.yml
+ports:
+  - "8000:5000"  # Thay 5000 thành 8000
+```
+
+**"OPENAI_API_KEY not found" trong Docker**
+- Kiểm tra file `.env` có trong thư mục project
+- Restart container: `docker-compose restart`
+
+### Application
+
+**"Không thể truy cập microphone"**
 - Kiểm tra quyền microphone trong browser settings
 - Chỉ hoạt động trên HTTPS hoặc localhost
 
-### "OPENAI_API_KEY not found"
+**"OPENAI_API_KEY not found"**
 - Kiểm tra file `.env` đã tạo chưa
 - Đảm bảo API key đúng format: `OPENAI_API_KEY=sk-...`
 
-### "Rate limit exceeded"
+**"Rate limit exceeded"**
 - Kiểm tra billing trong tài khoản OpenAI
 - Thêm credit nếu cần
 - Đợi một chút rồi thử lại
 
-### Ảnh Writing không hiển thị
+**Ảnh Writing không hiển thị**
 - Kiểm tra file tên đúng: `test1_task1.jpg`, `test2_task1.jpg`, ...
 - Kiểm tra đường dẫn: `static/images/writing/`
 - Hard refresh: `Ctrl + F5` (Windows) hoặc `Cmd + Shift + R` (Mac)
+- Nếu dùng Docker: Restart container `docker-compose restart`
 
 ---
 
