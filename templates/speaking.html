@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Speaking Practice - AI Scoring</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+    <style>
+        .header {
+            background: linear-gradient(135deg, #FF4D2E 0%, #C81E1E 100%);
+            color: #FFFFFF;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(to bottom, rgba(181, 22, 22, 0.2), transparent);
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 8px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1em;
+            opacity: 0.95;
+            font-weight: 400;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .timer {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #E52E2E;
+            margin: 20px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer.warning {
+            color: #F59E0B;
+        }
+
+        .timer.danger {
+            color: #E52E2E;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .recording-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+            font-size: 1.1em;
+            color: #E52E2E;
+            font-weight: 600;
+        }
+
+        .recording-indicator .rec-dot {
+            width: 12px;
+            height: 12px;
+            background: #E52E2E;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(229, 46, 46, 0.2);
+        }
+
+        .test-selector {
+            padding: 12px 40px 12px 16px;
+            font-size: 1em;
+            font-weight: 600;
+            border: 2px solid white;
+            border-radius: 8px;
+            background: white;
+            color: #E52E2E;
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E52E2E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            min-width: 250px;
+            transition: all 0.2s ease;
+        }
+
+        .test-selector:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .test-selector:focus {
+            border-color: white;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+
+        .test-selector option {
+            color: #111827;
+            background: white;
+            padding: 10px;
+        }
+
+        .preparation-notice {
+            background: #FFF7ED;
+            border: 1px solid #FDBA74;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .preparation-notice h3 {
+            color: #9A3412;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .preparation-notice p {
+            color: #9A3412;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-link">← Trang chủ</a>
+            <h1>🎯 IELTS Speaking Practice</h1>
+            <p>Practice with AI-Powered Evaluation</p>
+            <div id="testSelector" style="margin-top: 20px;"></div>
+        </div>
+
+        <div class="content">
+            <!-- Test Name & Part Selector -->
+            <div id="testName" style="text-align: center; padding: 16px 20px; background: #FFF7ED; border-radius: 8px; margin-bottom: 20px; border: 2px solid #FF4D2E;">
+                <h3 style="color: #E52E2E; font-size: 1.2em; font-weight: 600; margin: 0 0 12px 0;"></h3>
+                <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                    <button id="selectPart1" class="btn-part active">
+                        Part 1
+                    </button>
+                    <button id="selectPart2" class="btn-part">
+                        Part 2
+                    </button>
+                    <button id="selectPart3" class="btn-part">
+                        Part 3
+                    </button>
+                </div>
+                <p style="margin-top: 8px; font-size: 0.85em; color: #6B7280;">💡 Bạn có thể chọn bất kỳ Part nào để practice</p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+
+            <!-- Parts Status Indicator -->
+            <div id="partsStatus" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; padding: 16px; background: #FAFAFA; border-radius: 8px; border: 1px solid #E5E7EB;">
+                <div id="part1Status" class="part-status-item" style="text-align: center; padding: 12px; border-radius: 6px; background: white; border: 2px solid #E5E7EB;">
+                    <div style="font-size: 1.8em; margin-bottom: 4px;">⭕</div>
+                    <div style="font-size: 0.85em; font-weight: 600; color: #6B7280;">Part 1</div>
+                    <div style="font-size: 0.75em; color: #9CA3AF;" id="part1Count">0/6 câu</div>
+                </div>
+                <div id="part2Status" class="part-status-item" style="text-align: center; padding: 12px; border-radius: 6px; background: white; border: 2px solid #E5E7EB;">
+                    <div style="font-size: 1.8em; margin-bottom: 4px;">⭕</div>
+                    <div style="font-size: 0.85em; font-weight: 600; color: #6B7280;">Part 2</div>
+                    <div style="font-size: 0.75em; color: #9CA3AF;" id="part2Count">Long Turn</div>
+                </div>
+                <div id="part3Status" class="part-status-item" style="text-align: center; padding: 12px; border-radius: 6px; background: white; border: 2px solid #E5E7EB;">
+                    <div style="font-size: 1.8em; margin-bottom: 4px;">⭕</div>
+                    <div style="font-size: 0.85em; font-weight: 600; color: #6B7280;">Part 3</div>
+                    <div style="font-size: 0.75em; color: #9CA3AF;" id="part3Count">0/4 câu</div>
+                </div>
+            </div>
+
+            <!-- Test Content -->
+            <div id="testContent"></div>
+
+            <!-- Recording Controls -->
+            <div class="recording-controls">
+                <div id="recordingIndicator" class="recording-indicator hidden">
+                    <span class="rec-dot"></span>
+                    <span>RECORDING</span>
+                </div>
+                
+                <div id="timer" class="timer hidden">00:00</div>
+                
+                <button id="recordBtn" class="btn btn-record">🎤 Bắt đầu ghi âm</button>
+                <button id="stopBtn" class="btn btn-stop hidden">⏹️ Dừng ghi âm</button>
+                <button id="nextBtn" class="btn btn-next hidden">Câu hỏi tiếp theo →</button>
+                <button id="evaluatePartBtn" class="btn btn-submit hidden">📊 Chấm điểm Part này</button>
+                
+                <div id="status"></div>
+            </div>
+
+            <!-- Transcripts -->
+            <div id="transcripts"></div>
+
+            <!-- Evaluation Result -->
+            <div id="evaluationResult" class="hidden"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='speaking.js') }}"></script>
+</body>
+</html>
+

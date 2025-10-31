@@ -219,13 +219,165 @@ SPEAKING_TESTS = {
     }
 }
 
+# IELTS Writing test questions - Multiple test sets
+WRITING_TESTS = {
+    "test1": {
+        "name": "Education & Technology",
+        "task1": {
+            "title": "Task 1: Report (20 minutes)",
+            "intro": "You should spend about 20 minutes on this task.",
+            "question": """The chart below shows the percentage of households in owned and rented accommodation in England and Wales between 1918 and 2011.
+
+Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+
+Write at least 150 words.""",
+            "image": "test1_task1.jpg",
+            "min_words": 150,
+            "time_limit": 20
+        },
+        "task2": {
+            "title": "Task 2: Essay (40 minutes)",
+            "intro": "You should spend about 40 minutes on this task.",
+            "question": """Some people think that technology has made our lives more complicated. Others believe it has made life easier and more convenient.
+
+Discuss both views and give your own opinion.
+
+Give reasons for your answer and include any relevant examples from your own knowledge or experience.
+
+Write at least 250 words.""",
+            "min_words": 250,
+            "time_limit": 40
+        }
+    },
+    "test2": {
+        "name": "Environment & Society",
+        "task1": {
+            "title": "Task 1: Report (20 minutes)",
+            "intro": "You should spend about 20 minutes on this task.",
+            "question": """The diagrams below show the water supply system in Australia at present and in future.
+
+Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+
+Write at least 150 words.""",
+            "image": "test2_task1.jpg",
+            "min_words": 150,
+            "time_limit": 20
+        },
+        "task2": {
+            "title": "Task 2: Essay (40 minutes)",
+            "intro": "You should spend about 40 minutes on this task.",
+            "question": """Environmental problems are becoming increasingly serious. Some people think that individuals can do little to address these issues, while others believe that individual actions can make a significant difference.
+
+Discuss both views and give your own opinion.
+
+Give reasons for your answer and include any relevant examples from your own knowledge or experience.
+
+Write at least 250 words.""",
+            "min_words": 250,
+            "time_limit": 40
+        }
+    },
+    "test3": {
+        "name": "Work & Career",
+        "task1": {
+            "title": "Task 1: Report (20 minutes)",
+            "intro": "You should spend about 20 minutes on this task.",
+            "question": """The table below shows the employment patterns of men and women in three different sectors in the UK in 2019.
+
+Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+
+Write at least 150 words.""",
+            "image": "test3_task1.jpg",
+            "min_words": 150,
+            "time_limit": 20
+        },
+        "task2": {
+            "title": "Task 2: Essay (40 minutes)",
+            "intro": "You should spend about 40 minutes on this task.",
+            "question": """Some people believe that success in life comes from hard work and determination, while others believe that factors such as money and appearance are more important.
+
+Discuss both views and give your own opinion.
+
+Give reasons for your answer and include any relevant examples from your own knowledge or experience.
+
+Write at least 250 words.""",
+            "min_words": 250,
+            "time_limit": 40
+        }
+    },
+    "test4": {
+        "name": "Health & Lifestyle",
+        "task1": {
+            "title": "Task 1: Report (20 minutes)",
+            "intro": "You should spend about 20 minutes on this task.",
+            "question": """The graph below shows the consumption of different types of meat (chicken, beef, lamb, and fish) in a European country from 1979 to 2004.
+
+Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+
+Write at least 150 words.""",
+            "image": "test4_task1.jpg",
+            "min_words": 150,
+            "time_limit": 20
+        },
+        "task2": {
+            "title": "Task 2: Essay (40 minutes)",
+            "intro": "You should spend about 40 minutes on this task.",
+            "question": """In many countries, people are living longer than ever before. This increase in life expectancy has both positive and negative implications.
+
+What are the advantages and disadvantages of people living longer?
+
+Give reasons for your answer and include any relevant examples from your own knowledge or experience.
+
+Write at least 250 words.""",
+            "min_words": 250,
+            "time_limit": 40
+        }
+    },
+    "test5": {
+        "name": "Culture & Media",
+        "task1": {
+            "title": "Task 1: Report (20 minutes)",
+            "intro": "You should spend about 20 minutes on this task.",
+            "question": """The pie charts below show the online sales for different retail sectors in New Zealand in 2003 and 2013.
+
+Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+
+Write at least 150 words.""",
+            "image": "test5_task1.jpg",
+            "min_words": 150,
+            "time_limit": 20
+        },
+        "task2": {
+            "title": "Task 2: Essay (40 minutes)",
+            "intro": "You should spend about 40 minutes on this task.",
+            "question": """Some people think that the media (TV, newspapers, and internet) have too much influence on people's lives and that they should be more regulated.
+
+To what extent do you agree or disagree?
+
+Give reasons for your answer and include any relevant examples from your own knowledge or experience.
+
+Write at least 250 words.""",
+            "min_words": 250,
+            "time_limit": 40
+        }
+    }
+}
+
 # Current test selection (can be randomized or chosen by user)
 import random
 SPEAKING_TEST = SPEAKING_TESTS["test1"]  # Default test
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('home.html')
+
+@app.route('/speaking')
+def speaking():
+    return render_template('speaking.html')
+
+@app.route('/writing')
+def writing():
+    return render_template('writing.html')
 
 @app.route('/api/test-list', methods=['GET'])
 def get_test_list():
@@ -333,7 +485,28 @@ Follow the IELTS Speaking band descriptors strictly and provide detailed, specif
                     "role": "system",
                     "content": system_content + """
 
-Return your response in JSON format with the following structure:
+Your output format:
+
+### Evaluation
+
+**1. Fluency and Coherence (0–9):**
+- [Give score and explain pace, pauses, coherence, linking devices, and topic development]
+
+**2. Lexical Resource (0–9):**
+- [Give score and describe vocabulary range, idiomatic expressions, collocations, and appropriateness]
+
+**3. Grammatical Range and Accuracy (0–9):**
+- [Give score and explain sentence variety, tense usage, and error frequency]
+
+**4. Pronunciation (0–9):**
+- [Give score based on transcript indicators of clarity and naturalness]
+
+### Overall Band: [average rounded to nearest 0.5]
+
+### Examiner Feedback:
+[Provide a natural, 3-4 sentence summary of strengths and areas for improvement]
+
+IMPORTANT: Return your response in JSON format with this exact structure:
 {
     "overall_band": float (average band rounded to nearest 0.5),
     "criteria_scores": {
@@ -345,39 +518,40 @@ Return your response in JSON format with the following structure:
     "detailed_feedback": {
         "fluency_coherence": {
             "score": float,
-            "analysis": "Detailed analysis covering: pace of speech, pauses and hesitations, coherence and cohesion, use of linking devices, ability to develop topics. Be specific about what was observed."
+            "analysis": "Detailed analysis in Vietnamese covering: pace of speech, pauses and hesitations, coherence and cohesion, use of linking devices, ability to develop topics. Be specific about what was observed."
         },
         "lexical_resource": {
             "score": float,
-            "analysis": "Detailed analysis covering: vocabulary range, use of less common/idiomatic expressions, collocation, word choice appropriacy, any lexical errors or repetitions. Provide specific examples."
+            "analysis": "Detailed analysis in Vietnamese covering: vocabulary range, use of less common/idiomatic expressions, collocation, word choice appropriacy, any lexical errors or repetitions. Provide specific examples."
         },
         "grammatical_range": {
             "score": float,
-            "analysis": "Detailed analysis covering: variety of sentence structures (simple, compound, complex), tense usage and accuracy, grammatical errors and their frequency/severity. Highlight specific structures used or missing."
+            "analysis": "Detailed analysis in Vietnamese covering: variety of sentence structures (simple, compound, complex), tense usage and accuracy, grammatical errors and their frequency/severity. Highlight specific structures used or missing."
         },
         "pronunciation": {
             "score": float,
-            "analysis": "Based on transcript analysis: assess word stress patterns, sentence rhythm, clarity of expression. Note: actual pronunciation cannot be fully assessed from transcript alone, so focus on indicators of speech clarity and naturalness evident in the text."
+            "analysis": "Analysis in Vietnamese based on transcript: assess indicators of word stress patterns, sentence rhythm, clarity of expression. Note: actual pronunciation cannot be fully assessed from transcript alone, so focus on indicators of speech clarity and naturalness evident in the text."
         }
     },
-    "examiner_feedback": "2-3 sentences of natural feedback as an IELTS examiner: What was good, what to improve, and how to reach the next band level. Be encouraging but honest.",
-    "strengths": ["specific strength 1", "specific strength 2", "specific strength 3"],
-    "areas_for_improvement": ["specific area 1 with actionable advice", "specific area 2 with actionable advice", "specific area 3 with actionable advice"]
+    "examiner_feedback": "A natural, 3-4 sentence summary in Vietnamese written like a real IELTS examiner: What was good, what to improve, and how to reach the next band level. Be encouraging but honest.",
+    "strengths": ["specific strength 1 in Vietnamese", "specific strength 2 in Vietnamese"],
+    "areas_for_improvement": ["specific area 1 with actionable advice in Vietnamese", "specific area 2 with actionable advice in Vietnamese"]
 }
 
-Important guidelines:
+Guidelines:
 - Be specific and reference actual content from the responses
-- Scores should reflect official IELTS band descriptors
-- Feedback should be professional, constructive, and actionable
+- Scores must reflect official IELTS band descriptors (0-9 scale, use .0 or .5 increments)
+- All detailed feedback and lists should be in Vietnamese
+- Examiner feedback should be natural and encouraging but honest
 - Consider the part type (Part 1: short responses, Part 2: long turn, Part 3: abstract discussion)
-- Overall band is the average of the 4 criteria, rounded to nearest 0.5"""
+- Overall band = average of 4 criteria, rounded to nearest 0.5"""
                 },
                 {
                     "role": "user",
                     "content": evaluation_prompt
                 }
             ],
-            temperature=0.5,
+            temperature=0.3,
             response_format={"type": "json_object"}
         )
         
@@ -454,12 +628,154 @@ All detailed feedback should be in Vietnamese, but use English for criterion nam
     
     return prompt
 
+# ============ WRITING API ENDPOINTS ============
+
+@app.route('/api/writing/test-list', methods=['GET'])
+def get_writing_test_list():
+    """Trả về danh sách các bài test Writing"""
+    test_list = [
+        {"id": key, "name": value["name"]}
+        for key, value in WRITING_TESTS.items()
+    ]
+    return jsonify(test_list)
+
+@app.route('/api/writing/test-structure', methods=['GET'])
+def get_writing_test_structure():
+    """Trả về cấu trúc bài test IELTS Writing"""
+    test_id = request.args.get('test_id', 'test1')
+    selected_test = WRITING_TESTS.get(test_id, WRITING_TESTS['test1'])
+    return jsonify(selected_test)
+
+@app.route('/api/writing/evaluate', methods=['POST'])
+def evaluate_writing():
+    """Đánh giá bài Writing với AI"""
+    try:
+        data = request.json
+        task = data.get('task', 'task1')  # 'task1' or 'task2'
+        text = data.get('text', '')
+        word_count = data.get('word_count', 0)
+        duration = data.get('duration', 0)
+        question = data.get('question', '')
+        
+        # Create evaluation prompt using the new format
+        evaluation_prompt = f"""[Writing Task]
+{question}
+
+<Student's Essay>
+{text}
+
+[Word count: {word_count} | Time taken: {duration}s]"""
+        
+        # System prompt - unified for both tasks
+        system_content = """You are an official IELTS Writing examiner.
+You will be given a writing task and a student's essay.
+Your job is to evaluate the essay exactly as in an IELTS Writing test.
+
+Follow the official IELTS Writing Band Descriptors strictly.
+Provide detailed, constructive feedback and a final band score.
+
+Your output must be in this format:
+
+### Evaluation
+
+**1. Task Achievement / Task Response (0–9):**
+- [Give score and explain how well the essay addresses the task, supports ideas, and maintains relevance.]
+
+**2. Coherence and Cohesion (0–9):**
+- [Give score and analyze organization, logical flow, paragraphing, and use of linking devices.]
+
+**3. Lexical Resource (0–9):**
+- [Give score and describe vocabulary range, precision, collocations, and appropriateness.]
+
+**4. Grammatical Range and Accuracy (0–9):**
+- [Give score and explain sentence variety, grammatical control, and error frequency.]
+
+### Overall Band: [average rounded to nearest 0.5]
+
+### Examiner Feedback:
+[Provide a natural, 3–4 sentence summary of strengths and areas for improvement, written like a real IELTS examiner.]
+
+### Additional Analysis:
+**Strengths:**
+- [List 2-3 specific strengths in Vietnamese]
+
+**Areas for Improvement:**
+- [List 2-3 specific areas with actionable advice in Vietnamese]
+
+IMPORTANT: Return your response in JSON format with this exact structure:
+{
+    "overall_band": float (average band rounded to nearest 0.5),
+    "criteria_scores": {
+        "task_achievement": float,
+        "coherence_cohesion": float,
+        "lexical_resource": float,
+        "grammatical_range": float
+    },
+    "detailed_feedback": {
+        "task_achievement": "Detailed analysis covering how well the essay addresses the task, supports ideas, and maintains relevance. Include specific examples from the essay.",
+        "coherence_cohesion": "Detailed analysis of organization, logical flow, paragraphing, and use of linking devices. Include specific examples.",
+        "lexical_resource": "Detailed analysis of vocabulary range, precision, collocations, and appropriateness. Highlight specific word choices.",
+        "grammatical_range": "Detailed analysis of sentence variety, grammatical control, and error frequency. Point out specific structures."
+    },
+    "examiner_feedback": "A natural, 3-4 sentence summary written like a real IELTS examiner, covering strengths and areas for improvement.",
+    "strengths": ["specific strength 1 in Vietnamese", "specific strength 2 in Vietnamese"],
+    "areas_for_improvement": ["specific area 1 with actionable advice in Vietnamese", "specific area 2 with actionable advice in Vietnamese"]
+}
+
+Guidelines:
+- Be specific and reference actual content from the essay
+- Scores must reflect official IELTS band descriptors (0-9 scale, use .0 or .5 increments)
+- All detailed feedback and lists should be in Vietnamese
+- Examiner feedback should be natural and encouraging but honest
+- Overall band = average of 4 criteria, rounded to nearest 0.5"""
+        
+        # Call GPT for evaluation
+        completion = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_content
+                },
+                {
+                    "role": "user",
+                    "content": evaluation_prompt
+                }
+            ],
+            temperature=0.3,
+            response_format={"type": "json_object"}
+        )
+        
+        evaluation = json.loads(completion.choices[0].message.content)
+        
+        # Normalize key names (task_response -> task_achievement for consistency)
+        if 'task_response' in evaluation.get('criteria_scores', {}):
+            evaluation['criteria_scores']['task_achievement'] = evaluation['criteria_scores'].pop('task_response')
+        if 'task_response' in evaluation.get('detailed_feedback', {}):
+            evaluation['detailed_feedback']['task_achievement'] = evaluation['detailed_feedback'].pop('task_response')
+        
+        evaluation['timestamp'] = datetime.now().isoformat()
+        
+        return jsonify(evaluation)
+    
+    except Exception as e:
+        print(f"Error in writing evaluation: {e}")
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     # Tạo thư mục templates nếu chưa có
     if not os.path.exists('templates'):
         os.makedirs('templates')
     
-    print("Starting IELTS Speaking Practice Web App...")
-    print("Visit: http://localhost:5000")
+    print("=" * 60)
+    print("🎯 Starting IELTS Practice Web App (Speaking & Writing)")
+    print("=" * 60)
+    print("✅ Features:")
+    print("   - IELTS Speaking Practice with AI scoring")
+    print("   - IELTS Writing Practice with AI scoring")
+    print("   - Multiple test sets for each skill")
+    print("=" * 60)
+    print("🌐 Visit: http://localhost:5000")
+    print("=" * 60)
     app.run(debug=True, host='0.0.0.0', port=5000)
 

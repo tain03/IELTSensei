@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Practice - AI Scoring</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #FF4D2E 0%, #C81E1E 100%);
+            color: white;
+            padding: 80px 40px;
+            text-align: center;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 16px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin: 60px 0 40px;
+        }
+
+        .section-title h2 {
+            font-size: 2.2em;
+            color: #111827;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .section-title p {
+            font-size: 1.1em;
+            color: #6B7280;
+        }
+
+        .practice-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 32px;
+            margin-top: 40px;
+        }
+
+        .practice-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        .practice-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(229, 46, 46, 0.2);
+            border-color: #E52E2E;
+        }
+
+        .practice-card .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .practice-card h3 {
+            font-size: 1.8em;
+            color: #E52E2E;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .practice-card p {
+            font-size: 1.05em;
+            color: #374151;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .practice-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .practice-card li {
+            padding: 10px 0;
+            color: #6B7280;
+            font-size: 0.95em;
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .practice-card li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10B981;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .btn-start {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF4D2E 0%, #C81E1E 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.05em;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(229, 46, 46, 0.4);
+        }
+
+        .features {
+            background: #FAFAFA;
+            padding: 60px 40px;
+            border-radius: 16px;
+            margin: 60px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+            margin-top: 40px;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 24px;
+        }
+
+        .feature-item .icon {
+            font-size: 3em;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .feature-item h4 {
+            font-size: 1.2em;
+            color: #111827;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .feature-item p {
+            color: #6B7280;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2em;
+            }
+
+            .hero p {
+                font-size: 1.1em;
+            }
+
+            .practice-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>🎯 IELTS Practice</h1>
+        <p>Luyện thi IELTS Speaking & Writing với AI chấm điểm tự động theo tiêu chí chính thức</p>
+    </div>
+
+    <div class="container">
+        <div class="section-title">
+            <h2>Chọn phần thi bạn muốn luyện</h2>
+            <p>Mỗi phần đều có AI chấm điểm chi tiết và feedback cụ thể</p>
+        </div>
+
+        <div class="practice-cards">
+            <!-- Speaking Card -->
+            <a href="/speaking" class="practice-card">
+                <span class="icon">🎤</span>
+                <h3>IELTS Speaking</h3>
+                <p>Luyện thi Speaking với 5 bộ đề hoàn chỉnh, ghi âm trực tiếp và AI chấm điểm chi tiết</p>
+                <ul>
+                    <li>Part 1: Introduction & Interview (6 câu hỏi)</li>
+                    <li>Part 2: Long Turn (nói 2 phút)</li>
+                    <li>Part 3: Two-way Discussion (4 câu hỏi)</li>
+                    <li>Ghi âm trực tiếp trên web</li>
+                    <li>AI chấm điểm theo 4 tiêu chí IELTS</li>
+                </ul>
+                <button class="btn-start">Bắt đầu Speaking →</button>
+            </a>
+
+            <!-- Writing Card -->
+            <a href="/writing" class="practice-card">
+                <span class="icon">✍️</span>
+                <h3>IELTS Writing</h3>
+                <p>Luyện thi Writing với đề bài đa dạng và AI chấm điểm theo tiêu chí IELTS</p>
+                <ul>
+                    <li>Task 1: Miêu tả biểu đồ, bảng, sơ đồ (150 từ)</li>
+                    <li>Task 2: Essay về chủ đề xã hội (250 từ)</li>
+                    <li>5 bộ đề Writing hoàn chỉnh</li>
+                    <li>Đếm từ và kiểm tra thời gian</li>
+                    <li>AI chấm điểm theo 4 tiêu chí IELTS</li>
+                </ul>
+                <button class="btn-start">Bắt đầu Writing →</button>
+            </a>
+        </div>
+
+        <div class="features">
+            <div class="section-title" style="margin: 0 0 40px;">
+                <h2>Tính năng nổi bật</h2>
+                <p>Công nghệ AI tiên tiến giúp bạn cải thiện kỹ năng IELTS hiệu quả</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-item">
+                    <span class="icon">🤖</span>
+                    <h4>AI Chấm điểm</h4>
+                    <p>Sử dụng GPT-4 để đánh giá chi tiết theo tiêu chí IELTS chính thức</p>
+                </div>
+
+                <div class="feature-item">
+                    <span class="icon">📊</span>
+                    <h4>Báo cáo chi tiết</h4>
+                    <p>Phân tích từng tiêu chí với điểm số và feedback cụ thể</p>
+                </div>
+
+                <div class="feature-item">
+                    <span class="icon">💡</span>
+                    <h4>Gợi ý cải thiện</h4>
+                    <p>Nhận feedback chi tiết và hướng dẫn cải thiện điểm số</p>
+                </div>
+
+                <div class="feature-item">
+                    <span class="icon">🎯</span>
+                    <h4>Luyện tập linh hoạt</h4>
+                    <p>Chọn bất kỳ Part nào để luyện tập, không cần làm theo thứ tự</p>
+                </div>
+
+                <div class="feature-item">
+                    <span class="icon">📝</span>
+                    <h4>Nhiều bộ đề</h4>
+                    <p>5 bộ đề cho mỗi phần thi với chủ đề đa dạng</p>
+                </div>
+
+                <div class="feature-item">
+                    <span class="icon">⚡</span>
+                    <h4>Kết quả nhanh</h4>
+                    <p>Nhận kết quả chấm điểm chỉ trong 20-30 giây</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 40px 0;">
+            <p style="color: #6B7280; font-size: 1.05em;">
+                Made with ❤️ for IELTS learners | 
+                Powered by OpenAI GPT-4 & Whisper
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
