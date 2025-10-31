@@ -48,8 +48,8 @@
 
 **1. Clone project**
 ```bash
-git clone <repository-url>
-cd transcribe
+git clone https://github.com/tain03/IELTSensei.git
+cd IELTSensei
 ```
 
 **2. Tạo file `.env`**
