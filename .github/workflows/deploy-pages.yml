@@ -1,0 +1,91 @@
+name: Deploy Demo Frontend to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Jinja2
+        run: pip install jinja2
+
+      - name: Build static site
+        run: |
+          mkdir -p dist/static
+          
+          # Copy static assets
+          cp -r static/* dist/static/
+          
+          # Create Python script to render templates
+          python << 'EOF'
+          import os
+          from jinja2 import Environment, FileSystemLoader
+
+          env = Environment(loader=FileSystemLoader('templates'))
+
+          # Custom url_for function for static files
+          def url_for(endpoint, **values):
+              if endpoint == 'static':
+                  return f"static/{values.get('filename', '')}"
+              return f"/{endpoint}"
+
+          env.globals['url_for'] = url_for
+
+          # Render each template
+          templates_to_render = {
+              'home.html': 'index.html',
+              'speaking.html': 'speaking.html',
+              'writing.html': 'writing.html'
+          }
+
+          os.makedirs('dist', exist_ok=True)
+
+          for src, dest in templates_to_render.items():
+              try:
+                  template = env.get_template(src)
+                  html = template.render()
+                  with open(f'dist/{dest}', 'w', encoding='utf-8') as f:
+                      f.write(html)
+                  print(f"✅ Rendered {src} -> {dest}")
+              except Exception as e:
+                  print(f"❌ Error rendering {src}: {e}")
+          EOF
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
