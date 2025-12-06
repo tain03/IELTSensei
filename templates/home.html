@@ -1,204 +1,400 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IELTS Practice - AI Scoring</title>
+    <meta name="description"
+        content="Luyện thi IELTS Speaking & Writing với AI chấm điểm tự động theo tiêu chí chính thức">
     <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
     <style>
+        body {
+            padding: 0;
+            background: var(--color-background);
+        }
+
+        /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, #FF4D2E 0%, #C81E1E 100%);
-            color: white;
-            padding: 80px 40px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: var(--color-text-inverse);
+            padding: 100px 40px 80px;
             text-align: center;
-            border-radius: 0 0 24px 24px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 15% 85%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(45, 212, 191, 0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--color-secondary), var(--color-accent), var(--color-secondary));
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-2xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-icon svg {
+            width: 40px;
+            height: 40px;
+            color: var(--color-text-inverse);
         }
 
         .hero h1 {
-            font-size: 3em;
-            margin-bottom: 16px;
-            font-weight: 700;
+            font-size: 3.5rem;
+            margin-bottom: var(--spacing-4);
+            font-weight: 800;
             letter-spacing: -1px;
+            color: var(--color-text-inverse);
         }
 
         .hero p {
-            font-size: 1.3em;
+            font-size: 1.25rem;
             opacity: 0.95;
             max-width: 600px;
             margin: 0 auto;
+            line-height: 1.7;
         }
 
+        /* Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 60px 24px;
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
         }
 
+        /* Section Title */
         .section-title {
             text-align: center;
-            margin: 60px 0 40px;
+            margin-bottom: var(--spacing-12);
         }
 
         .section-title h2 {
-            font-size: 2.2em;
-            color: #111827;
-            margin-bottom: 12px;
-            font-weight: 700;
+            font-size: 2.5rem;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-3);
+            font-weight: 800;
         }
 
         .section-title p {
-            font-size: 1.1em;
-            color: #6B7280;
+            font-size: 1.125rem;
+            color: var(--color-text-secondary);
+            max-width: 500px;
+            margin: 0 auto;
         }
 
+        /* Practice Cards */
         .practice-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 32px;
-            margin-top: 40px;
+            margin-top: var(--spacing-10);
         }
 
         .practice-card {
-            background: white;
-            border-radius: 16px;
+            background: var(--color-surface);
+            border-radius: var(--radius-2xl);
             padding: 40px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--shadow-lg);
             transition: all 0.3s ease;
-            border: 2px solid transparent;
+            border: 1px solid var(--color-border);
             cursor: pointer;
             text-decoration: none;
             display: block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .practice-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .practice-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 12px 32px rgba(229, 46, 46, 0.2);
-            border-color: #E52E2E;
+            box-shadow: var(--shadow-xl), var(--shadow-glow);
+            border-color: var(--color-primary-200);
         }
 
-        .practice-card .icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            display: block;
+        .practice-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--color-primary-50), var(--color-primary-100));
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--spacing-6);
+        }
+
+        .card-icon svg {
+            width: 36px;
+            height: 36px;
+            color: var(--color-primary);
+        }
+
+        .card-icon.writing-icon {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+        }
+
+        .card-icon.writing-icon svg {
+            color: #3B82F6;
         }
 
         .practice-card h3 {
-            font-size: 1.8em;
-            color: #E52E2E;
-            margin-bottom: 16px;
+            font-size: 1.75rem;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-4);
             font-weight: 700;
         }
 
-        .practice-card p {
-            font-size: 1.05em;
-            color: #374151;
+        .practice-card>p {
+            font-size: 1.05rem;
+            color: var(--color-text-secondary);
             line-height: 1.7;
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-5);
         }
 
         .practice-card ul {
             list-style: none;
             padding: 0;
-            margin: 20px 0;
+            margin: var(--spacing-5) 0;
         }
 
         .practice-card li {
-            padding: 10px 0;
-            color: #6B7280;
-            font-size: 0.95em;
+            padding: 12px 0;
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
             position: relative;
-            padding-left: 28px;
+            padding-left: 32px;
+            display: flex;
+            align-items: center;
         }
 
-        .practice-card li:before {
-            content: "✓";
+        .practice-card li svg {
             position: absolute;
             left: 0;
-            color: #10B981;
-            font-weight: bold;
-            font-size: 1.2em;
+            width: 20px;
+            height: 20px;
+            color: var(--color-success);
         }
 
         .btn-start {
-            display: inline-block;
-            background: linear-gradient(135deg, #FF4D2E 0%, #C81E1E 100%);
-            color: white;
-            padding: 14px 32px;
-            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: var(--color-text-inverse);
+            padding: 16px 32px;
+            border-radius: var(--radius-lg);
             font-weight: 600;
-            font-size: 1.05em;
+            font-size: 1.05rem;
             text-decoration: none;
             transition: all 0.2s ease;
             border: none;
             cursor: pointer;
+            font-family: var(--font-body);
         }
 
         .btn-start:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(229, 46, 46, 0.4);
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
         }
 
+        .btn-start svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Features Section */
         .features {
-            background: #FAFAFA;
-            padding: 60px 40px;
-            border-radius: 16px;
-            margin: 60px 0;
+            background: var(--color-surface);
+            padding: 80px 48px;
+            border-radius: var(--radius-2xl);
+            margin: 80px 0 40px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--color-border);
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 32px;
-            margin-top: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-top: var(--spacing-10);
         }
 
         .feature-item {
             text-align: center;
-            padding: 24px;
+            padding: var(--spacing-6);
+            border-radius: var(--radius-xl);
+            transition: all 0.3s ease;
         }
 
-        .feature-item .icon {
-            font-size: 3em;
-            margin-bottom: 16px;
-            display: block;
+        .feature-item:hover {
+            background: var(--color-primary-50);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-5);
+            box-shadow: var(--shadow-md), var(--shadow-glow);
+        }
+
+        .feature-icon svg {
+            width: 32px;
+            height: 32px;
+            color: var(--color-text-inverse);
         }
 
         .feature-item h4 {
-            font-size: 1.2em;
-            color: #111827;
-            margin-bottom: 12px;
-            font-weight: 600;
+            font-size: 1.25rem;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-3);
+            font-weight: 700;
         }
 
         .feature-item p {
-            color: #6B7280;
-            line-height: 1.6;
+            color: var(--color-text-secondary);
+            line-height: 1.7;
+            font-size: 0.95rem;
         }
 
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: var(--spacing-10) 0 var(--spacing-6);
+            border-top: 1px solid var(--color-border);
+            margin-top: var(--spacing-10);
+        }
+
+        .footer p {
+            color: var(--color-text-muted);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            flex-wrap: wrap;
+        }
+
+        .footer svg {
+            width: 18px;
+            height: 18px;
+            color: var(--color-error);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
+            .hero {
+                padding: 60px 24px 50px;
+            }
+
             .hero h1 {
-                font-size: 2em;
+                font-size: 2.25rem;
             }
 
             .hero p {
-                font-size: 1.1em;
+                font-size: 1.1rem;
+            }
+
+            .container {
+                padding: 40px 16px;
             }
 
             .practice-cards {
                 grid-template-columns: 1fr;
             }
 
+            .practice-card {
+                padding: 28px;
+            }
+
+            .features {
+                padding: 48px 24px;
+                margin: 48px 0 24px;
+            }
+
             .features-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .section-title h2 {
+                font-size: 1.875rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="hero">
-        <h1>🎯 IELTS Practice</h1>
-        <p>Luyện thi IELTS Speaking & Writing với AI chấm điểm tự động theo tiêu chí chính thức</p>
+        <div class="hero-content">
+            <div class="hero-icon">
+                <!-- Target Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="6"></circle>
+                    <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+            </div>
+            <h1>IELTS Practice</h1>
+            <p>Luyện thi IELTS Speaking & Writing với AI chấm điểm tự động theo tiêu chí chính thức</p>
+        </div>
     </div>
 
     <div class="container">
@@ -210,87 +406,224 @@
         <div class="practice-cards">
             <!-- Speaking Card -->
             <a href="/speaking" class="practice-card">
-                <span class="icon">🎤</span>
+                <div class="card-icon">
+                    <!-- Microphone Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" x2="12" y1="19" y2="22"></line>
+                    </svg>
+                </div>
                 <h3>IELTS Speaking</h3>
                 <p>Luyện thi Speaking với 5 bộ đề hoàn chỉnh, ghi âm trực tiếp và AI chấm điểm chi tiết</p>
                 <ul>
-                    <li>Part 1: Introduction & Interview (6 câu hỏi)</li>
-                    <li>Part 2: Long Turn (nói 2 phút)</li>
-                    <li>Part 3: Two-way Discussion (4 câu hỏi)</li>
-                    <li>Ghi âm trực tiếp trên web</li>
-                    <li>AI chấm điểm theo 4 tiêu chí IELTS</li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Part 1: Introduction & Interview (6 câu hỏi)
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Part 2: Long Turn (nói 2 phút)
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Part 3: Two-way Discussion (4 câu hỏi)
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        AI chấm điểm theo 4 tiêu chí IELTS
+                    </li>
                 </ul>
-                <button class="btn-start">Bắt đầu Speaking →</button>
+                <button class="btn-start">
+                    Bắt đầu Speaking
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
             </a>
 
             <!-- Writing Card -->
             <a href="/writing" class="practice-card">
-                <span class="icon">✍️</span>
+                <div class="card-icon writing-icon">
+                    <!-- Pen Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                        <path d="m15 5 4 4"></path>
+                    </svg>
+                </div>
                 <h3>IELTS Writing</h3>
                 <p>Luyện thi Writing với đề bài đa dạng và AI chấm điểm theo tiêu chí IELTS</p>
                 <ul>
-                    <li>Task 1: Miêu tả biểu đồ, bảng, sơ đồ (150 từ)</li>
-                    <li>Task 2: Essay về chủ đề xã hội (250 từ)</li>
-                    <li>5 bộ đề Writing hoàn chỉnh</li>
-                    <li>Đếm từ và kiểm tra thời gian</li>
-                    <li>AI chấm điểm theo 4 tiêu chí IELTS</li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Task 1: Miêu tả biểu đồ, bảng, sơ đồ (150 từ)
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Task 2: Essay về chủ đề xã hội (250 từ)
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        5 bộ đề Writing hoàn chỉnh
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        AI chấm điểm theo 4 tiêu chí IELTS
+                    </li>
                 </ul>
-                <button class="btn-start">Bắt đầu Writing →</button>
+                <button class="btn-start">
+                    Bắt đầu Writing
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
             </a>
         </div>
 
         <div class="features">
-            <div class="section-title" style="margin: 0 0 40px;">
+            <div class="section-title" style="margin-bottom: 0;">
                 <h2>Tính năng nổi bật</h2>
                 <p>Công nghệ AI tiên tiến giúp bạn cải thiện kỹ năng IELTS hiệu quả</p>
             </div>
 
             <div class="features-grid">
                 <div class="feature-item">
-                    <span class="icon">🤖</span>
+                    <div class="feature-icon">
+                        <!-- CPU/AI Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="16" height="16" x="4" y="4" rx="2"></rect>
+                            <rect width="6" height="6" x="9" y="9" rx="1"></rect>
+                            <path d="M15 2v2"></path>
+                            <path d="M15 20v2"></path>
+                            <path d="M2 15h2"></path>
+                            <path d="M2 9h2"></path>
+                            <path d="M20 15h2"></path>
+                            <path d="M20 9h2"></path>
+                            <path d="M9 2v2"></path>
+                            <path d="M9 20v2"></path>
+                        </svg>
+                    </div>
                     <h4>AI Chấm điểm</h4>
                     <p>Sử dụng GPT-4 để đánh giá chi tiết theo tiêu chí IELTS chính thức</p>
                 </div>
 
                 <div class="feature-item">
-                    <span class="icon">📊</span>
+                    <div class="feature-icon">
+                        <!-- Chart Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18"></path>
+                            <path d="m19 9-5 5-4-4-3 3"></path>
+                        </svg>
+                    </div>
                     <h4>Báo cáo chi tiết</h4>
                     <p>Phân tích từng tiêu chí với điểm số và feedback cụ thể</p>
                 </div>
 
                 <div class="feature-item">
-                    <span class="icon">💡</span>
+                    <div class="feature-icon">
+                        <!-- Lightbulb Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5">
+                            </path>
+                            <path d="M9 18h6"></path>
+                            <path d="M10 22h4"></path>
+                        </svg>
+                    </div>
                     <h4>Gợi ý cải thiện</h4>
                     <p>Nhận feedback chi tiết và hướng dẫn cải thiện điểm số</p>
                 </div>
 
                 <div class="feature-item">
-                    <span class="icon">🎯</span>
+                    <div class="feature-icon">
+                        <!-- Shuffle Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"></path>
+                            <path d="m18 2 4 4-4 4"></path>
+                            <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"></path>
+                            <path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"></path>
+                            <path d="m18 14 4 4-4 4"></path>
+                        </svg>
+                    </div>
                     <h4>Luyện tập linh hoạt</h4>
                     <p>Chọn bất kỳ Part nào để luyện tập, không cần làm theo thứ tự</p>
                 </div>
 
                 <div class="feature-item">
-                    <span class="icon">📝</span>
+                    <div class="feature-icon">
+                        <!-- Files Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M15.5 2H8.6c-.4 0-.8.2-1.1.5-.3.3-.5.7-.5 1.1v12.8c0 .4.2.8.5 1.1.3.3.7.5 1.1.5h9.8c.4 0 .8-.2 1.1-.5.3-.3.5-.7.5-1.1V6.5L15.5 2z">
+                            </path>
+                            <path d="M3 7.6v12.8c0 .4.2.8.5 1.1.3.3.7.5 1.1.5h9.8"></path>
+                            <path d="M15 2v5h5"></path>
+                        </svg>
+                    </div>
                     <h4>Nhiều bộ đề</h4>
                     <p>5 bộ đề cho mỗi phần thi với chủ đề đa dạng</p>
                 </div>
 
                 <div class="feature-item">
-                    <span class="icon">⚡</span>
+                    <div class="feature-icon">
+                        <!-- Zap Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                    </div>
                     <h4>Kết quả nhanh</h4>
                     <p>Nhận kết quả chấm điểm chỉ trong 20-30 giây</p>
                 </div>
             </div>
         </div>
 
-        <div style="text-align: center; padding: 40px 0;">
-            <p style="color: #6B7280; font-size: 1.05em;">
-                Made with ❤️ for IELTS learners | 
-                Powered by OpenAI GPT-4 & Whisper
+        <div class="footer">
+            <p>
+                Made with
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+                for IELTS learners | Powered by OpenAI GPT-4 & Whisper
             </p>
         </div>
     </div>
 </body>
-</html>
 
+</html>

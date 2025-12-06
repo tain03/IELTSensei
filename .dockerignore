@@ -43,3 +43,7 @@ transcribe_api.py
 templates/index.html
 static/app.js
 
+.agent
+.shared
+
+

@@ -1,185 +1,238 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IELTS Speaking Practice - AI Scoring</title>
+    <meta name="description" content="Luyện thi IELTS Speaking với AI chấm điểm tự động theo tiêu chí chính thức">
     <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
     <style>
-        .header {
-            background: linear-gradient(135deg, #FF4D2E 0%, #C81E1E 100%);
-            color: #FFFFFF;
-            padding: 40px 30px;
-            text-align: center;
-            position: relative;
+        body {
+            padding: var(--spacing-5);
         }
 
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            right: 0;
-            height: 10px;
-            background: linear-gradient(to bottom, rgba(181, 22, 22, 0.2), transparent);
+        .header {
+            padding: var(--spacing-12) var(--spacing-8);
         }
 
         .header h1 {
-            font-size: 2em;
-            margin-bottom: 8px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .header p {
-            font-size: 1em;
-            opacity: 0.95;
-            font-weight: 400;
-        }
-
-        .back-link {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 8px 16px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            transition: all 0.2s;
-        }
-
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .timer {
-            font-size: 2.5em;
-            font-weight: 700;
-            color: #E52E2E;
-            margin: 20px 0;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .timer.warning {
-            color: #F59E0B;
-        }
-
-        .timer.danger {
-            color: #E52E2E;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .recording-indicator {
             display: flex;
-            justify-content: center;
             align-items: center;
-            gap: 12px;
-            margin: 24px 0;
-            font-size: 1.1em;
-            color: #E52E2E;
+            justify-content: center;
+            gap: var(--spacing-3);
+        }
+
+        .header h1 svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* Test Name & Part Selector Card */
+        .test-info-card {
+            text-align: center;
+            padding: var(--spacing-5) var(--spacing-6);
+            background: linear-gradient(135deg, var(--color-primary-50), var(--color-primary-100));
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--spacing-6);
+            border: 2px solid var(--color-primary-200);
+        }
+
+        .test-info-card h3 {
+            color: var(--color-primary-dark);
+            font-size: var(--text-xl);
+            font-weight: 700;
+            margin: 0 0 var(--spacing-4) 0;
+        }
+
+        .part-selector {
+            display: flex;
+            gap: var(--spacing-3);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .test-info-card .hint {
+            margin-top: var(--spacing-3);
+            font-size: var(--text-sm);
+            color: var(--color-text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+        }
+
+        .test-info-card .hint svg {
+            width: 16px;
+            height: 16px;
+            color: var(--color-warning);
+        }
+
+        /* Parts Status Grid */
+        .parts-status {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-3);
+            margin: var(--spacing-5) 0;
+            padding: var(--spacing-5);
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .part-status-item {
+            text-align: center;
+            padding: var(--spacing-4);
+            border-radius: var(--radius-lg);
+            background: var(--color-background);
+            border: 2px solid var(--color-border);
+            transition: all var(--transition-base);
+        }
+
+        .part-status-item.active {
+            border-color: var(--color-primary);
+            background: var(--color-primary-50);
+        }
+
+        .part-status-item.completed {
+            border-color: var(--color-success);
+            background: var(--color-success-light);
+        }
+
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto var(--spacing-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-icon svg {
+            width: 28px;
+            height: 28px;
+            color: var(--color-text-muted);
+        }
+
+        .part-status-item.active .status-icon svg {
+            color: var(--color-primary);
+        }
+
+        .part-status-item.completed .status-icon svg {
+            color: var(--color-success);
+        }
+
+        .part-status-item .label {
+            font-size: var(--text-sm);
             font-weight: 600;
+            color: var(--color-text-secondary);
         }
 
-        .recording-indicator .rec-dot {
-            width: 12px;
-            height: 12px;
-            background: #E52E2E;
-            border-radius: 50%;
-            box-shadow: 0 0 0 4px rgba(229, 46, 46, 0.2);
+        .part-status-item .count {
+            font-size: var(--text-xs);
+            color: var(--color-text-muted);
+            margin-top: var(--spacing-1);
         }
 
-        .test-selector {
-            padding: 12px 40px 12px 16px;
-            font-size: 1em;
-            font-weight: 600;
-            border: 2px solid white;
-            border-radius: 8px;
-            background: white;
-            color: #E52E2E;
-            cursor: pointer;
-            outline: none;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E52E2E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 20px;
-            min-width: 250px;
-            transition: all 0.2s ease;
+        /* Timer */
+        .timer-container {
+            text-align: center;
+            margin: var(--spacing-6) 0;
         }
 
-        .test-selector:hover {
-            background: rgba(255, 255, 255, 0.95);
-            border-color: rgba(255, 255, 255, 0.9);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        /* Recording Indicator */
+        .recording-indicator {
+            background: var(--color-error-light);
+            padding: var(--spacing-3) var(--spacing-6);
+            border-radius: var(--radius-full);
+            display: inline-flex;
+            font-size: var(--text-base);
+            border: 1px solid #FECACA;
         }
 
-        .test-selector:focus {
-            border-color: white;
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-        }
-
-        .test-selector option {
-            color: #111827;
-            background: white;
-            padding: 10px;
-        }
-
+        /* Preparation Notice */
         .preparation-notice {
-            background: #FFF7ED;
-            border: 1px solid #FDBA74;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
+            background: var(--color-warning-light);
+            border: 1px solid #FCD34D;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-5);
+            margin: var(--spacing-5) 0;
             text-align: center;
         }
 
         .preparation-notice h3 {
-            color: #9A3412;
-            margin-bottom: 8px;
-            font-size: 1.1em;
+            color: #92400E;
+            margin-bottom: var(--spacing-2);
+            font-size: var(--text-lg);
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+        }
+
+        .preparation-notice h3 svg {
+            width: 20px;
+            height: 20px;
         }
 
         .preparation-notice p {
-            color: #9A3412;
+            color: #92400E;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .parts-status {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
-            <a href="/" class="back-link">← Trang chủ</a>
-            <h1>🎯 IELTS Speaking Practice</h1>
+            <a href="/" class="back-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Trang chủ
+            </a>
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" x2="12" y1="19" y2="22"></line>
+                </svg>
+                IELTS Speaking Practice
+            </h1>
             <p>Practice with AI-Powered Evaluation</p>
             <div id="testSelector" style="margin-top: 20px;"></div>
         </div>
 
         <div class="content">
             <!-- Test Name & Part Selector -->
-            <div id="testName" style="text-align: center; padding: 16px 20px; background: #FFF7ED; border-radius: 8px; margin-bottom: 20px; border: 2px solid #FF4D2E;">
-                <h3 style="color: #E52E2E; font-size: 1.2em; font-weight: 600; margin: 0 0 12px 0;"></h3>
-                <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-                    <button id="selectPart1" class="btn-part active">
-                        Part 1
-                    </button>
-                    <button id="selectPart2" class="btn-part">
-                        Part 2
-                    </button>
-                    <button id="selectPart3" class="btn-part">
-                        Part 3
-                    </button>
+            <div id="testName" class="test-info-card">
+                <h3></h3>
+                <div class="part-selector">
+                    <button id="selectPart1" class="btn-part active">Part 1</button>
+                    <button id="selectPart2" class="btn-part">Part 2</button>
+                    <button id="selectPart3" class="btn-part">Part 3</button>
                 </div>
-                <p style="margin-top: 8px; font-size: 0.85em; color: #6B7280;">💡 Bạn có thể chọn bất kỳ Part nào để practice</p>
+                <p class="hint">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5">
+                        </path>
+                        <path d="M9 18h6"></path>
+                        <path d="M10 22h4"></path>
+                    </svg>
+                    Bạn có thể chọn bất kỳ Part nào để practice
+                </p>
             </div>
 
             <!-- Progress Bar -->
@@ -188,21 +241,36 @@
             </div>
 
             <!-- Parts Status Indicator -->
-            <div id="partsStatus" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; padding: 16px; background: #FAFAFA; border-radius: 8px; border: 1px solid #E5E7EB;">
-                <div id="part1Status" class="part-status-item" style="text-align: center; padding: 12px; border-radius: 6px; background: white; border: 2px solid #E5E7EB;">
-                    <div style="font-size: 1.8em; margin-bottom: 4px;">⭕</div>
-                    <div style="font-size: 0.85em; font-weight: 600; color: #6B7280;">Part 1</div>
-                    <div style="font-size: 0.75em; color: #9CA3AF;" id="part1Count">0/6 câu</div>
+            <div id="partsStatus" class="parts-status">
+                <div id="part1Status" class="part-status-item">
+                    <div class="status-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                    </div>
+                    <div class="label">Part 1</div>
+                    <div class="count" id="part1Count">0/6 câu</div>
                 </div>
-                <div id="part2Status" class="part-status-item" style="text-align: center; padding: 12px; border-radius: 6px; background: white; border: 2px solid #E5E7EB;">
-                    <div style="font-size: 1.8em; margin-bottom: 4px;">⭕</div>
-                    <div style="font-size: 0.85em; font-weight: 600; color: #6B7280;">Part 2</div>
-                    <div style="font-size: 0.75em; color: #9CA3AF;" id="part2Count">Long Turn</div>
+                <div id="part2Status" class="part-status-item">
+                    <div class="status-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                    </div>
+                    <div class="label">Part 2</div>
+                    <div class="count" id="part2Count">Long Turn</div>
                 </div>
-                <div id="part3Status" class="part-status-item" style="text-align: center; padding: 12px; border-radius: 6px; background: white; border: 2px solid #E5E7EB;">
-                    <div style="font-size: 1.8em; margin-bottom: 4px;">⭕</div>
-                    <div style="font-size: 0.85em; font-weight: 600; color: #6B7280;">Part 3</div>
-                    <div style="font-size: 0.75em; color: #9CA3AF;" id="part3Count">0/4 câu</div>
+                <div id="part3Status" class="part-status-item">
+                    <div class="status-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                    </div>
+                    <div class="label">Part 3</div>
+                    <div class="count" id="part3Count">0/4 câu</div>
                 </div>
             </div>
 
@@ -215,14 +283,42 @@
                     <span class="rec-dot"></span>
                     <span>RECORDING</span>
                 </div>
-                
+
                 <div id="timer" class="timer hidden">00:00</div>
-                
-                <button id="recordBtn" class="btn btn-record">🎤 Bắt đầu ghi âm</button>
-                <button id="stopBtn" class="btn btn-stop hidden">⏹️ Dừng ghi âm</button>
-                <button id="nextBtn" class="btn btn-next hidden">Câu hỏi tiếp theo →</button>
-                <button id="evaluatePartBtn" class="btn btn-submit hidden">📊 Chấm điểm Part này</button>
-                
+
+                <button id="recordBtn" class="btn btn-record">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" x2="12" y1="19" y2="22"></line>
+                    </svg>
+                    Bắt đầu ghi âm
+                </button>
+                <button id="stopBtn" class="btn btn-stop hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+                    </svg>
+                    Dừng ghi âm
+                </button>
+                <button id="nextBtn" class="btn btn-next hidden">
+                    Câu hỏi tiếp theo
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+                <button id="evaluatePartBtn" class="btn btn-submit hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18"></path>
+                        <path d="m19 9-5 5-4-4-3 3"></path>
+                    </svg>
+                    Chấm điểm Part này
+                </button>
+
                 <div id="status"></div>
             </div>
 
@@ -236,5 +332,5 @@
 
     <script src="{{ url_for('static', filename='speaking.js') }}"></script>
 </body>
-</html>
 
+</html>
